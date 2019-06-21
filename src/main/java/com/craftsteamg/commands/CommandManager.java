@@ -1,10 +1,15 @@
 package com.craftsteamg.commands;
 
+import com.craftsteamg.api.MsgWrapper;
+import com.craftsteamg.arguments.ArgumentParseException;
+import com.craftsteamg.commands.cmds.ArgumentTest;
 import com.mongodb.client.MongoDatabase;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CommandManager extends ListenerAdapter {
 
@@ -14,8 +19,11 @@ public class CommandManager extends ListenerAdapter {
 
     public CommandManager(MongoDatabase database) {
         this.database = database;
+        registerCommands();
     }
 
+
+    private List<Command> commands = new ArrayList<>();
 
     @Override
     public void onMessageReceived(@Nonnull MessageReceivedEvent event) {
@@ -24,12 +32,25 @@ public class CommandManager extends ListenerAdapter {
         String messageString = event.getMessage().getContentRaw();
 
         if(!messageString.startsWith(PREFIX) && messageString.length() <= 1) return;
-        messageString = messageString.substring(1);
+        String trigger = messageString.substring(1).split(" ")[0];
+        MsgWrapper wrapper = new MsgWrapper(event.getMessage());
 
-        if(messageString.equalsIgnoreCase("ping")) {
-            event.getChannel().sendMessage("Pong!").queue();
+        for(Command command : commands) {
+            if(command.getTrigger().equalsIgnoreCase(trigger)) {
+                try {
+                    if (wrapper.parse(command)) {
+                        command.execute(wrapper);
+                        break;
+                    }
+                } catch (ArgumentParseException e) {
+                    wrapper.reply(e.getMessage());
+                }
+            }
         }
 
+    }
 
+    private void registerCommands() {
+        this.commands.add(new ArgumentTest());
     }
 }
