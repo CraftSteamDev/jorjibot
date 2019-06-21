@@ -19,4 +19,6 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.5'
     compile 'net.dv8tion:JDA:' + jdaVersion
     compile 'org.mongodb:mongodb-driver-sync:3.10.2'
+    compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.11.2'
+    compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.11.2'
 }
