@@ -19,7 +19,7 @@ public class JorjiBot {
 
 
     private void setupListeners(JDA jda) {
-        jda.addEventListener(new CommandManager());
+        jda.addEventListener(new CommandManager(db));
     }
 
 
